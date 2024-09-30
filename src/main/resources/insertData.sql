@@ -1,0 +1,2 @@
+insert into users(username, password, enabled) values ('harry','{bcrypt}$2a$10$nFpjDh.LYqR.O4HelAuNLOWaOhkNHPEEYJDuLFVkAlize5efa/BGq',1)
+insert into users(username, password, enabled) values ('larry','{bcrypt}$2a$10$nFpjDh.LYqR.O4HelAuNLOWaOhkNHPEEYJDuLFVkAlize5efa/BGq',1)
