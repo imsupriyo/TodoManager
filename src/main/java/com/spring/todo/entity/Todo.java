@@ -4,11 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "todo")
+@Where(clause = "done=false") // select query will only return Todo where done = false
 public class Todo {
 
     @Id

@@ -2,3 +2,5 @@ A full CRUD based web application with user authentication and role-based access
 User with role admin has additional privilege to manage users and update all Todos.
 
 Unit test and Integration Test have been done utilizing Junit and Mockito.
+
+![ER Diagram](/Users/supriyopal/Desktop/entity_relationship.png)
