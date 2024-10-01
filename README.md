@@ -3,4 +3,5 @@ User with role admin has additional privilege to manage users and update all Tod
 
 Unit test and Integration Test have been done utilizing Junit and Mockito.
 
-![ER Diagram](/Users/supriyopal/Desktop/entity_relationship.png)
+
+![ER Diagram](entity_relationship.png)
