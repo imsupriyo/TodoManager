@@ -19,16 +19,6 @@ public class LoggerAspect {
     @Pointcut("execution(* com.spring.todo.service.*.*(..))")
     private void forService(){}
 
-
-//    @Pointcut("execution(* com.spring.todo.dao.*.*(..))")
-//    private void forDao(){}
-
-//    @Pointcut("execution(* com.spring.todo.entity.*.*(..))")
-//    private void forEntity(){}
-
-//    @Pointcut("execution(* com.spring.todo.security.*.*(..))")
-//    private void forSecurity(){}
-
     @Before("forController() || forService()")
     void loggingBefore(JoinPoint joinPoint) {
         logger.info("======> @Before ");

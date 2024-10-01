@@ -57,6 +57,7 @@ public class AuthoritiesService {
     public void addUserRole(UserRole userRole) {
         User user = new User(userRole.getUsername(), encoder.encode(userRole.getPassword()), (short) 1);
         for (String role : userRole.getRoles()) {
+            System.out.println(role);
             user.addAuthorities(findByAuthority(role));
         }
         userService.save(user);

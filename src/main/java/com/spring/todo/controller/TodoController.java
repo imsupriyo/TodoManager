@@ -100,7 +100,7 @@ public class TodoController {
     @RequestMapping(value = "delete-todo", method = RequestMethod.GET)
     public String deleteTodo(@RequestParam("id") int id) {
         if (todoService.findById(id) == null)
-            throw new TodoNotFoundException();
+            throw new TodoNotFoundException("Invalid Todo Id");
         todoService.deleteById(id);
         return "redirect:todo";
     }
@@ -156,7 +156,7 @@ public class TodoController {
     @RequestMapping(value = "update-admin-todo", method = RequestMethod.GET)
     public String adminUpdateTodo(@RequestParam("id") int id, ModelMap model) {
         if (todoService.findById(id) == null)
-            throw new TodoNotFoundException();
+            throw new TodoNotFoundException("Invalid Todo Id");
         model.addAttribute("todo", todoService.findById(id));
         model.put("users", userService.findAllUserNames());
         return "admin-add-todo";
@@ -177,7 +177,7 @@ public class TodoController {
     @RequestMapping(value = "delete-admin-todo", method = RequestMethod.GET)
     public String adminDeleteTodo(@RequestParam("id") int id) {
         if (todoService.findById(id) == null)
-            throw new TodoNotFoundException();
+            throw new TodoNotFoundException("Invalid Todo Id");
         todoService.deleteById(id);
         return "redirect:/admin";
     }
@@ -210,7 +210,7 @@ public class TodoController {
             throw new RuntimeException("Can't delete. User is associated with a todo");
 
         if (getLoggedUsername().equals(username))
-            throw  new RuntimeException("You can't delete your own account!");
+            throw new RuntimeException("You can't delete your own account!");
 
         userService.deleteByName(username);
         return "redirect:/admin";

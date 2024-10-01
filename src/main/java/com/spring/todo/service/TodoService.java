@@ -2,6 +2,7 @@ package com.spring.todo.service;
 
 import com.spring.todo.repository.TodoRepository;
 import com.spring.todo.entity.Todo;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,12 +17,12 @@ public class TodoService {
     }
 
     public List<Todo> findAll() {
-        return todoRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.ASC, "targetDate");
+        return todoRepository.findAll(sort);
     }
 
     public List<Todo> findByUsername(String username) {
-        List<Todo> todoList = todoRepository.findByUsername(username);
-        System.out.println(todoList);
+        List<Todo> todoList = todoRepository.findByUsernameOrderByTargetDate(username);
         return todoList.isEmpty() ? null : todoList;
     }
 

@@ -14,14 +14,10 @@ import java.util.List;
 public interface UserRepo extends JpaRepository<User, String> {
 
     @Query(value = "SELECT username FROM users", nativeQuery = true)
-    public List<String> findAllUsernames();
+    List<String> findAllUsernames();
 
-    @Query(value = "SELECT * FROM users WHERE username = :username", nativeQuery = true)
-    public User findByName(@Param("username") String username);
+    User findByUsername(String username);
 
     @Transactional
-    @Modifying
-    @Query(value = "DELETE FROM users WHERE username = :username", nativeQuery = true)
-    public void deleteByUsername(@Param("username") String username);
-
+    void deleteByUsername(String username);
 }

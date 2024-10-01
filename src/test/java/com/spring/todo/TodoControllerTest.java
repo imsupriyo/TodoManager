@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.ModelAndViewAssert;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -117,7 +118,6 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addTodo() throws Exception {
         MvcResult result = mockMvc.perform(post("/add-todo")
-                        .contentType(MediaType.APPLICATION_JSON)
                         .param("id", request.getParameterValues("id"))
                         .param("username", request.getParameterValues("username"))
                         .param("description", request.getParameterValues("description"))
@@ -135,7 +135,6 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addInvalidTodo() throws Exception {
         MvcResult result = mockMvc.perform(post("/add-todo")
-                        .contentType(MediaType.APPLICATION_JSON)
                         .param("id", String.valueOf(3))
                         .param("username", "supriyo")
                         .param("description", "Learn SQL")
@@ -166,7 +165,7 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void deleteInvalidTodo() throws Exception {
         assertNull(todoService.findById(404));
-        MvcResult result = mockMvc.perform(get("/delete-todo?id=404"))
+        mockMvc.perform(get("/delete-todo?id=404"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status", is(404)))
@@ -174,12 +173,11 @@ public class TodoControllerTest {
                 .andReturn();
     }
 
-    @DisplayName("Admin add todo")
+    @DisplayName("add todo as admin")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void adminAddTodo() throws Exception {
         MvcResult result = mockMvc.perform(post("/admin-add")
-                        .contentType(MediaType.APPLICATION_JSON)
                         .param("id", String.valueOf(2))
                         .param("username", "marry")
                         .param("description", "Learn Mockito")
@@ -192,7 +190,8 @@ public class TodoControllerTest {
         ModelAndView mav = result.getModelAndView();
         ModelAndViewAssert.assertViewName(mav, "redirect:admin");
     }
-    @DisplayName("admin-view get Test")
+
+    @DisplayName("admin-view getMapping")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void testAdminView() throws Exception {
@@ -203,7 +202,7 @@ public class TodoControllerTest {
         ModelAndViewAssert.assertViewName(mav, "all-todos");
     }
 
-    @DisplayName("admin-add get Test")
+    @DisplayName("admin-add getMapping")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void testAdminAdd() throws Exception {
@@ -212,5 +211,81 @@ public class TodoControllerTest {
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
         ModelAndViewAssert.assertViewName(mav, "admin-add-todo");
+    }
+
+    @DisplayName("Add a User")
+    @Test
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void addNewUser() throws Exception {
+        assertNull(userService.findByName("deadpool"));
+        mockMvc.perform(post("/register")
+                        .param("username", "deadpool")
+                        .param("password", "abc@123")
+                        .param("roles", "ROLE_ADMIN")
+                        .param("roles", "ROLE_EMPLOYEE"))
+                .andExpect(redirectedUrl("/admin"))
+                .andReturn();
+        assertNotNull(userService.findByName("deadpool"));
+    }
+
+    @DisplayName("Add a User with existing username")
+    @Test
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void addUserWithExistingUsername() throws Exception {
+        assertNotNull(userService.findByName("supriyo"));
+        mockMvc.perform(post("/register")
+                        .param("username", "supriyo")
+                        .param("password", "abc@123")
+                        .param("roles", "ROLE_ADMIN")
+                        .param("roles", "ROLE_EMPLOYEE"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("Username is unavailable! try with a different name")))
+                .andReturn();
+    }
+
+    @DisplayName("delete a user")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void deleteUser() throws Exception {
+        assertNotNull(userService.findByName("john"));
+        mockMvc.perform(post("/del-user")
+                        .param("username", "john"))
+                .andExpect(redirectedUrl("/admin"))
+                .andReturn();
+        assertNull(userService.findByName("john"));
+    }
+
+    @DisplayName("delete own account")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "marry", roles = {"ADMIN"})
+    public void deleteOwnAccount() throws Exception {
+        assertNotNull(userService.findByName("marry"));
+        mockMvc.perform(post("/del-user")
+                        .param("username", "marry"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("You can't delete your own account!")))
+                .andReturn();
+    }
+
+
+    @DisplayName("delete account connected with a todo")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void deleteAccountAssociatedWithATodo() throws Exception {
+        assertNotNull(todoService.findByUsername("supriyo"));
+        mockMvc.perform(post("/del-user")
+                        .param("username", "supriyo"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("Can't delete. User is associated with a todo")))
+                .andReturn();
     }
 }
