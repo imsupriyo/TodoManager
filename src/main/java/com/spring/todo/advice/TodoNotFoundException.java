@@ -1,6 +1,6 @@
 package com.spring.todo.advice;
 
-public class TodoNotFoundException extends RuntimeException{
+public class TodoNotFoundException extends RuntimeException {
     public TodoNotFoundException() {
     }
 

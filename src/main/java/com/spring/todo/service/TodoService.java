@@ -1,7 +1,8 @@
 package com.spring.todo.service;
 
-import com.spring.todo.repository.TodoRepository;
+import com.spring.todo.advice.TodoNotFoundException;
 import com.spring.todo.entity.Todo;
+import com.spring.todo.repository.TodoRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,8 @@ public class TodoService {
     }
 
     public void deleteById(int id) {
+        if (findById(id) == null)
+            throw new TodoNotFoundException("Invalid Todo Id");
         todoRepository.deleteById(id);
     }
 

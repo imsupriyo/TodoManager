@@ -1,8 +1,8 @@
 package com.spring.todo.service;
 
 import com.spring.todo.entity.User;
-import com.spring.todo.repository.AuthoritiesRepo;
 import com.spring.todo.repository.UserRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,11 +10,12 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserRepo userRepo;
-    private final AuthoritiesRepo authoritiesRepo;
 
-    public UserService(UserRepo userRepo, AuthoritiesRepo authoritiesRepo) {
+    @Autowired
+    TodoService todoService;
+
+    public UserService(UserRepo userRepo) {
         this.userRepo = userRepo;
-        this.authoritiesRepo = authoritiesRepo;
     }
 
     public List<String> findAllUserNames() {
@@ -29,8 +30,11 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public void deleteByName(String name) {
-        findByName(name).setAuthorities(null);
-        userRepo.deleteByUsername(name);
+    public void deleteByName(String username) {
+        if (todoService.findByUsername(username) != null)
+            throw new RuntimeException("Can't delete. User is associated with a todo");
+
+        findByName(username).setAuthorities(null);
+        userRepo.deleteByUsername(username);
     }
 }

@@ -1,7 +1,6 @@
 package com.spring.todo.service;
 
 import com.spring.todo.entity.Todo;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

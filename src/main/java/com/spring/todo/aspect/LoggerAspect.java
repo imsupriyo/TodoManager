@@ -14,10 +14,12 @@ public class LoggerAspect {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     @Pointcut("execution(* com.spring.todo.controller.TodoController.*(..))")
-    private void forController(){}
+    private void forController() {
+    }
 
     @Pointcut("execution(* com.spring.todo.service.*.*(..))")
-    private void forService(){}
+    private void forService() {
+    }
 
     @Before("forController() || forService()")
     void loggingBefore(JoinPoint joinPoint) {
@@ -38,7 +40,7 @@ public class LoggerAspect {
             throw e;
         }
         long end = System.currentTimeMillis();
-        logger.info("Execution time: " + (end - begin)/1000 + " seconds");
+        logger.info("Execution time: " + (end - begin) / 1000 + " seconds");
         return result;
     }
 

@@ -10,12 +10,13 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "todo")
-@Where(clause = "done=false") // select query will only return Todo where done = false
+@Where(clause = "done=false")
+// select query will only return Todo where done = false
 public class Todo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="id")
+    @Column(name = "id")
     private int id;
 
     @NotNull(message = "username can't be empty")

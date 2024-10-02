@@ -30,7 +30,10 @@
         </tbody>
 
     </table>
-    <a class="btn btn-success" href="add-todo">Add a new Todo</a>
+    <div class="text-center">
+        <a class="btn btn-success" href="add-todo">Add a Todo</a>
+    </div>
+
 </div>
 <%@ include file="common/footer.jspf" %>
 </body>

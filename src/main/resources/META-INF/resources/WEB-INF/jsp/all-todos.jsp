@@ -31,9 +31,12 @@
             </c:forEach>
         </tbody>
     </table>
-    <a class="btn btn-success" href="admin-add">Add Todo</a><br/>
-    <a class="btn btn-primary" href="register">Create User</a><br/>
-    <a class="btn btn-danger" href="del-user">Delete User</a>
+<div class="text-center">
+    <a class="btn btn-primary d-inline-block" href="admin-add">Add Todo</a>
+    <a class="btn btn-success d-inline-block" href="register">Create User</a>
+    <a class="btn btn-danger d-inline-block" href="del-user">Delete User</a>
+</div>
+
 </div>
 <%@ include file="common/footer.jspf" %>
 </body>

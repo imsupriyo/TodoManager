@@ -16,7 +16,7 @@ public class Authorities {
     @Column(name = "authority")
     private String authority;
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authorities",fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authorities", fetch = FetchType.EAGER)
     private Set<User> users = new HashSet<>();
 
     public Authorities() {
