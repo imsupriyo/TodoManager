@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public void deleteByName(String username) {
-        if (todoService.findByUsername(username) != null)
+        if (todoService.findTodoByUsername(username) != null)
             throw new RuntimeException("Can't delete. User is associated with a todo");
 
         findByName(username).setAuthorities(null);

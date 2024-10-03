@@ -1,11 +1,19 @@
 package com.spring.todo.entity;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+
+import java.util.List;
 import java.util.Set;
 
 public class UserRole {
     private int id;
+    @NotEmpty(message = "username can't be empty")
     private String username;
+    @NotEmpty(message = "password can't be empty")
     private String password;
+    @NotEmpty(message = "You must select a user role")
+    @Size(max = 2, message = "User can't have more than 2 roles")
     private Set<String> roles;
 
     public UserRole(String username, String password) {

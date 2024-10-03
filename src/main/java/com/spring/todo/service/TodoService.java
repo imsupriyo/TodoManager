@@ -3,7 +3,7 @@ package com.spring.todo.service;
 import com.spring.todo.advice.TodoNotFoundException;
 import com.spring.todo.entity.Todo;
 import com.spring.todo.repository.TodoRepository;
-import org.springframework.data.domain.Sort;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,12 +18,11 @@ public class TodoService {
     }
 
     public List<Todo> findAll() {
-        Sort sort = Sort.by(Sort.Direction.ASC, "targetDate");
-        return todoRepository.findAll(sort);
+        return todoRepository.findByDoneOrderByTargetDate(false);
     }
 
-    public List<Todo> findByUsername(String username) {
-        List<Todo> todoList = todoRepository.findByUsernameOrderByTargetDate(username);
+    public List<Todo> findTodoByUsername(String username) {
+        List<Todo> todoList = todoRepository.findByUsernameAndDoneOrderByTargetDate(username, false);
         return todoList.isEmpty() ? null : todoList;
     }
 
@@ -39,5 +38,20 @@ public class TodoService {
 
     public Todo findById(int id) {
         return todoRepository.findById(id).orElse(null);
+    }
+
+    public List<Todo> completedTodosByUsername(String username) {
+        return todoRepository.findByUsernameAndDoneOrderByTargetDate(username, true);
+    }
+
+    public List<Todo> allCompletedTodos() {
+        return todoRepository.findByDoneOrderByTargetDate(true);
+    }
+
+    @Transactional
+    public void markTodoAsDone(int id) {
+        if (findById(id).isDone())
+            throw new RuntimeException("This Todo is already marked as completed.");
+        todoRepository.markTodoAsDone(id);
     }
 }

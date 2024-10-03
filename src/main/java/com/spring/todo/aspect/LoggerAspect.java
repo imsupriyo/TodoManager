@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class LoggerAspect {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
-    @Pointcut("execution(* com.spring.todo.controller.TodoController.*(..))")
+    @Pointcut("execution(* com.spring.todo.controller.*.*(..))")
     private void forController() {
     }
 
@@ -21,7 +21,15 @@ public class LoggerAspect {
     private void forService() {
     }
 
-    @Before("forController() || forService()")
+    @Pointcut("execution(* com.spring.todo.advice.*.*(..))")
+    private void forAdvice() {
+    }
+
+    @Pointcut("execution(* com.spring.todo.repository.*.*(..))")
+    private void forRepository() {
+    }
+
+    @Before("forController() || forService() || forAdvice() || forRepository()")
     void loggingBefore(JoinPoint joinPoint) {
         logger.info("======> @Before ");
         logger.info("Method: " + joinPoint.getSignature().toShortString());
@@ -44,7 +52,7 @@ public class LoggerAspect {
         return result;
     }
 
-    @AfterReturning(pointcut = "forController() || forService()", returning = "result")
+    @AfterReturning(pointcut = "forController() || forService() || forAdvice() || forRepository()", returning = "result")
     Object loggingAfter(JoinPoint joinPoint, Object result) {
         logger.info("======> @AfterReturning from " + joinPoint.getSignature().toShortString());
         logger.info("Return value: " + result);

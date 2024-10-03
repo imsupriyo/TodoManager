@@ -23,17 +23,18 @@
         <h2>User Registration Form</h2>
 
         <form:form method="post" modelAttribute="userForm" class="form">
-
             <form:input path="id" type="hidden"/>
 
             <div class="form-group">
                 <form:label path="username" class="form-label">Username:</form:label>
                 <form:input path="username" class="form-control" />
+                <form:errors path="username" cssClass="text-danger"/>
             </div>
 
             <div class="form-group">
                 <form:label path="password" class="form-label">Password:</form:label>
                 <form:password path="password" class="form-control" />
+                <form:errors path="password" cssClass="text-danger"/>
             </div>
 
             <div class="form-group">
@@ -44,6 +45,7 @@
                         <form:label class="form-check-label" path="roles" for="${role}">${role}</form:label>
                     </div>
                 </c:forEach>
+                <form:errors path="roles" cssClass="text-danger"/>
             </div>
 
             <div class="form-group">

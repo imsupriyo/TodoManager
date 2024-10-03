@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -20,9 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -77,7 +74,7 @@ public class TodoControllerTest {
     public void testTodo() throws Exception {
         User supriyo = userService.findByName("supriyo");
         assertNotNull(supriyo);
-        MvcResult result = mockMvc.perform(get("/todo"))
+        MvcResult result = mockMvc.perform(get("/todo/list-todo"))
                 .andExpect(status().isOk())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
@@ -88,25 +85,25 @@ public class TodoControllerTest {
     @Test
     @WithMockUser(username = "john", roles = {"EMPLOYEE"})
     public void accessDeniedPage() throws Exception {
-        MvcResult result = mockMvc.perform(get("/admin"))
+        MvcResult result = mockMvc.perform(get("/todo/admin/list-todo"))
                 .andExpect(status().isForbidden())
-                .andExpect(forwardedUrl("/access-denied"))
+                .andExpect(forwardedUrl("/todo/access-denied"))
                 .andReturn();
 
-        MvcResult accessDeniedResult = mockMvc.perform(get("/access-denied"))
+        MvcResult accessDeniedResult = mockMvc.perform(get("/todo/access-denied"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         ModelAndView mav = accessDeniedResult.getModelAndView();
         assertNotNull(mav);
-        ModelAndViewAssert.assertViewName(mav, "access-denied");
+        ModelAndViewAssert.assertViewName(mav, "error");
     }
 
     @DisplayName("Add todo button")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void testAddTodo() throws Exception {
-        MvcResult result = mockMvc.perform(get("/add-todo"))
+        MvcResult result = mockMvc.perform(get("/todo/add-todo"))
                 .andExpect(status().isOk())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
@@ -117,7 +114,7 @@ public class TodoControllerTest {
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addTodo() throws Exception {
-        MvcResult result = mockMvc.perform(post("/add-todo")
+        MvcResult result = mockMvc.perform(post("/todo/add-todo")
                         .param("id", request.getParameterValues("id"))
                         .param("username", request.getParameterValues("username"))
                         .param("description", request.getParameterValues("description"))
@@ -126,7 +123,7 @@ public class TodoControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
-        ModelAndViewAssert.assertViewName(mav, "redirect:todo");
+        ModelAndViewAssert.assertViewName(mav, "redirect:/todo/list-todo");
         assertNotNull(todoService.findById(todoService.findAll().size()));
     }
 
@@ -134,7 +131,7 @@ public class TodoControllerTest {
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addInvalidTodo() throws Exception {
-        MvcResult result = mockMvc.perform(post("/add-todo")
+        MvcResult result = mockMvc.perform(post("/todo/add-todo")
                         .param("id", String.valueOf(3))
                         .param("username", "supriyo")
                         .param("description", "Learn SQL")
@@ -152,11 +149,11 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void deleteTodo() throws Exception {
         assertNotNull(todoService.findById(101));
-        MvcResult result = mockMvc.perform(get("/delete-todo?id=101"))
+        MvcResult result = mockMvc.perform(get("/todo/delete-todo?id=101"))
                 .andExpect(status().is3xxRedirection())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
-        ModelAndViewAssert.assertViewName(mav, "redirect:todo");
+        ModelAndViewAssert.assertViewName(mav, "redirect:/todo/list-todo");
         assertNull(todoService.findById(101));
     }
 
@@ -165,19 +162,17 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void deleteInvalidTodo() throws Exception {
         assertNull(todoService.findById(404));
-        mockMvc.perform(get("/delete-todo?id=404"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status", is(404)))
-                .andExpect(jsonPath("$.message", is("Invalid Todo Id")))
+        MvcResult result = mockMvc.perform(get("/todo/delete-todo?id=404"))
+                .andExpect(status().isOk())
                 .andReturn();
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "error");
     }
 
     @DisplayName("add todo as admin")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void adminAddTodo() throws Exception {
-        MvcResult result = mockMvc.perform(post("/admin-add")
+        MvcResult result = mockMvc.perform(post("/todo/admin/add-todo")
                         .param("id", String.valueOf(2))
                         .param("username", "marry")
                         .param("description", "Learn Mockito")
@@ -186,16 +181,16 @@ public class TodoControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andReturn();
 
-        assertNotNull(todoService.findByUsername("marry"));
+        assertNotNull(todoService.findTodoByUsername("marry"));
         ModelAndView mav = result.getModelAndView();
-        ModelAndViewAssert.assertViewName(mav, "redirect:admin");
+        ModelAndViewAssert.assertViewName(mav, "redirect:/todo/admin/list-todo");
     }
 
     @DisplayName("admin-view getMapping")
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void testAdminView() throws Exception {
-        MvcResult result = mockMvc.perform(get("/admin"))
+        MvcResult result = mockMvc.perform(get("/todo/admin/list-todo"))
                 .andExpect(status().isOk())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
@@ -206,7 +201,7 @@ public class TodoControllerTest {
     @Test
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void testAdminAdd() throws Exception {
-        MvcResult result = mockMvc.perform(get("/admin-add"))
+        MvcResult result = mockMvc.perform(get("/todo/admin/add-todo"))
                 .andExpect(status().isOk())
                 .andReturn();
         ModelAndView mav = result.getModelAndView();
@@ -218,12 +213,12 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addNewUser() throws Exception {
         assertNull(userService.findByName("deadpool"));
-        mockMvc.perform(post("/register")
+        mockMvc.perform(post("/todo/admin/add-user")
                         .param("username", "deadpool")
                         .param("password", "abc@123")
                         .param("roles", "ROLE_ADMIN")
                         .param("roles", "ROLE_EMPLOYEE"))
-                .andExpect(redirectedUrl("/admin"))
+                .andExpect(redirectedUrl("/todo/admin/list-todo"))
                 .andReturn();
         assertNotNull(userService.findByName("deadpool"));
     }
@@ -233,16 +228,14 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void addUserWithExistingUsername() throws Exception {
         assertNotNull(userService.findByName("supriyo"));
-        mockMvc.perform(post("/register")
+        MvcResult result = mockMvc.perform(post("/todo/admin/add-user")
                         .param("username", "supriyo")
                         .param("password", "abc@123")
                         .param("roles", "ROLE_ADMIN")
                         .param("roles", "ROLE_EMPLOYEE"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.message", is("Username is unavailable! try with a different name")))
+                .andExpect(status().isOk())
                 .andReturn();
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "error");
     }
 
     @DisplayName("delete a user")
@@ -251,9 +244,9 @@ public class TodoControllerTest {
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void deleteUser() throws Exception {
         assertNotNull(userService.findByName("john"));
-        mockMvc.perform(post("/del-user")
+        mockMvc.perform(post("/todo/admin/del-user")
                         .param("username", "john"))
-                .andExpect(redirectedUrl("/admin"))
+                .andExpect(redirectedUrl("/todo/admin/list-todo"))
                 .andReturn();
         assertNull(userService.findByName("john"));
     }
@@ -264,28 +257,70 @@ public class TodoControllerTest {
     @WithMockUser(username = "marry", roles = {"ADMIN"})
     public void deleteOwnAccount() throws Exception {
         assertNotNull(userService.findByName("marry"));
-        mockMvc.perform(post("/del-user")
+        MvcResult result = mockMvc.perform(post("/todo/admin/del-user")
                         .param("username", "marry"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.message", is("You can't delete your own account!")))
+                .andExpect(status().isOk())
                 .andReturn();
-    }
 
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "error");
+    }
 
     @DisplayName("delete account connected with a todo")
     @Test
     @DirtiesContext
     @WithMockUser(username = "supriyo", roles = {"ADMIN"})
     public void deleteAccountAssociatedWithATodo() throws Exception {
-        assertNotNull(todoService.findByUsername("supriyo"));
-        mockMvc.perform(post("/del-user")
+        assertNotNull(todoService.findTodoByUsername("supriyo"));
+        MvcResult result = mockMvc.perform(post("/todo/admin/del-user")
                         .param("username", "supriyo"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.message", is("Can't delete. User is associated with a todo")))
+                .andExpect(status().isOk())
                 .andReturn();
+
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "error");
+    }
+
+    @DisplayName("mark Todo as Done")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void markTodoAsDone() throws Exception {
+        assertFalse(todoService.findById(101).isDone());
+        MvcResult result = mockMvc.perform(get("/todo/mark-done-todo?id=101"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn();
+
+        assertTrue(todoService.findById(101).isDone());
+    }
+
+    @DisplayName("re-mark Todo as Done")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void remarkTodoAsDone() throws Exception {
+        assertFalse(todoService.findById(101).isDone());
+        mockMvc.perform(get("/todo/mark-done-todo?id=101"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn();
+        assertTrue(todoService.findById(101).isDone());
+        MvcResult result = mockMvc.perform(get("/todo/mark-done-todo?id=101"))
+                .andExpect(status().isOk())
+                .andReturn();
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "error");
+    }
+
+    @DisplayName("select more than 2 user roles")
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "supriyo", roles = {"ADMIN"})
+    public void moreThanTwoUserRoles() throws Exception {
+        MvcResult result = mockMvc.perform(post("/todo/admin/add-user")
+                        .param("username", "deadpool")
+                        .param("password", "test@123")
+                        .param("roles", "ROLE_ADMIN")
+                        .param("roles", "ROLE_MANAGER")
+                        .param("roles", "ROLE_EMPLOYEE"))
+                .andExpect(status().isOk())
+                .andReturn();
+        ModelAndViewAssert.assertViewName(result.getModelAndView(), "userform");
     }
 }

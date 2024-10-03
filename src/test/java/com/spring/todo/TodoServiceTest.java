@@ -2,7 +2,6 @@ package com.spring.todo;
 
 import com.spring.todo.entity.Todo;
 import com.spring.todo.service.TodoService;
-import com.spring.todo.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,6 +93,6 @@ class TodoServiceTest {
     @DisplayName("Find By Username")
     @Test
     public void findByUserName() {
-        assertNotNull(todoService.findByUsername("supriyo"));
+        assertNotNull(todoService.findTodoByUsername("supriyo"));
     }
 }

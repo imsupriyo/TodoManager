@@ -2,9 +2,9 @@
     <a class="navbar-brand m-1" href="#">TodoManager</a>
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav">
-            <li class="nav-item"><a class="nav-link" href="/todo">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/todo/list-todo">Home</a></li>
             <sec:authorize access="hasRole('ROLE_ADMIN')">
-                <li class="nav-item"><a class="nav-link" href="/admin">Admin-View</a></li>
+                <li class="nav-item"><a class="nav-link" href="/todo/admin/list-todo">Admin-View</a></li>
             </sec:authorize>
         </ul>
     </div>

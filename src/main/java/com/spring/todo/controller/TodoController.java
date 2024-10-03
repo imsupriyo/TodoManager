@@ -3,6 +3,8 @@ package com.spring.todo.controller;
 import com.spring.todo.entity.Todo;
 import com.spring.todo.service.TodoService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -17,7 +19,9 @@ import java.time.LocalDate;
 
 @Controller
 @SessionAttributes("name")
+@RequestMapping("/todo")
 public class TodoController {
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private final TodoService todoService;
 
     public TodoController(TodoService todoService) {
@@ -30,11 +34,10 @@ public class TodoController {
 //        return "basic_login";
 //    }
 
-    // get username of the logged-in user :)
+    // get username of the logged-in user
     private String getLoggedUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
-
 
     // Trim whitespaces filled in the form
     @InitBinder
@@ -44,29 +47,37 @@ public class TodoController {
     }
 
     @GetMapping("/access-denied")
-    String accessDenied(Model model) {
-        model.addAttribute("errorMessage",
-                "Access Denied - Only Admins can access this page.");
-        return "access-denied";
+    public void accessDenied(Model model) {
+        throw new RuntimeException("Access Denied - Only Admins can access this page.");
     }
 
-    // redirect to Main app :P
-    @GetMapping("/")
-    public String redirectToDo() {
-        return "redirect:/todo";
+    @GetMapping("/error")
+    public String error() {
+        return "error";
     }
 
-    @RequestMapping(value = "/todo", method = RequestMethod.GET)
-    public String gotoTodos(ModelMap model) {
+    @RequestMapping(value = "/list-todo", method = RequestMethod.GET)
+    public String incompleteTodos(ModelMap model) {
         model.addAttribute("name", StringUtils.capitalize(getLoggedUsername()));
-        model.addAttribute("todos", todoService.findByUsername(getLoggedUsername()));
+        model.addAttribute("todos", todoService.findTodoByUsername(getLoggedUsername()));
         return "todo";
+    }
+
+    @GetMapping("/completed-todo")
+    public String completedTodos(Model model) {
+        model.addAttribute("todos", todoService.completedTodosByUsername(getLoggedUsername()));
+        return "todo";
+    }
+
+    @GetMapping("/mark-done-todo")
+    public String markTodoAsDone(@RequestParam("id") int id) {
+        todoService.markTodoAsDone(id);
+        return "redirect:/todo/list-todo";
     }
 
     @RequestMapping(value = "add-todo", method = RequestMethod.GET)
     public String addTodo(ModelMap model) {
-        Todo todo = new Todo(0, getLoggedUsername(), "", LocalDate.now(), false);
-        model.put("todo", todo);
+        model.put("todo", new Todo(getLoggedUsername(), "", LocalDate.now(), false));
         return "add-todo";
     }
 
@@ -74,16 +85,17 @@ public class TodoController {
     public String addTodo(@Valid Todo todo, BindingResult result) {
         // return to the same page if validation fails
         if (result.hasErrors()) {
+            logger.error("Couldn't add Todo. Validation Failed. {}", result.getAllErrors());
             return "add-todo";
         }
         todoService.save(todo);
-        return "redirect:todo";
+        return "redirect:/todo/list-todo";
     }
 
     @RequestMapping(value = "delete-todo", method = RequestMethod.GET)
     public String deleteTodo(@RequestParam("id") int id) {
         todoService.deleteById(id);
-        return "redirect:todo";
+        return "redirect:/todo/list-todo";
     }
 
     @RequestMapping(value = "update-todo", method = RequestMethod.GET)
@@ -96,10 +108,11 @@ public class TodoController {
     public String updateTodo(@Valid Todo todo, BindingResult result) {
         // return to the same page if validation fails
         if (result.hasErrors()) {
+            logger.error("Couldn't update Todo. Validation Failed. {}", result.getAllErrors());
             return "add-todo";
         }
         todoService.save(todo);
-        return "redirect:todo";
+        return "redirect:/todo/list-todo";
     }
 
 }

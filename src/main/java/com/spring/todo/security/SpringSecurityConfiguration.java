@@ -46,8 +46,8 @@ public class SpringSecurityConfiguration {
         http
                 .csrf().disable() // Disable CSRF for H2 console access
                 .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.GET, "/admin").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/todo/**").hasRole("EMPLOYEE")
+                .requestMatchers("/todo/admin/**").hasRole("ADMIN")
+                .requestMatchers("/todo/**").hasAnyRole("EMPLOYEE", "ADMIN", "MANAGER")
                 .requestMatchers("/h2-console/**").permitAll() // Allow H2 console access
 //                .requestMatchers("/login","/WEB-INF/jsp/**").permitAll()
 //                .anyRequest().permitAll() // TODO: with custom login it needs permitAll + Admin View isn't working
@@ -57,10 +57,10 @@ public class SpringSecurityConfiguration {
                 .and()
                 .formLogin()
                 //                .loginPage("/login")
-                .defaultSuccessUrl("/todo", true)
+                .defaultSuccessUrl("/todo/list-todo", true)
                 .and()
                 .exceptionHandling()
-                .accessDeniedPage("/access-denied");
+                .accessDeniedPage("/todo/access-denied");
 
         return http.build();
     }

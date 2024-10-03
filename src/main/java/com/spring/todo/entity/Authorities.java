@@ -3,6 +3,7 @@ package com.spring.todo.entity;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -18,6 +19,8 @@ public class Authorities {
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authorities", fetch = FetchType.EAGER)
     private Set<User> users = new HashSet<>();
+
+    public static List<String> authorityList = List.of("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_MANAGER");
 
     public Authorities() {
     }

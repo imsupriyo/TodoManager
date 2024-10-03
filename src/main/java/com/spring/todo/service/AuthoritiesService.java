@@ -66,4 +66,7 @@ public class AuthoritiesService {
         userService.save(user);
     }
 
+    public List<String> getAuthorityList() {
+        return Authorities.authorityList;
+    }
 }

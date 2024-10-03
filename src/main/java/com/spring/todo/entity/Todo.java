@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "todo")
-@Where(clause = "done=false")
+//@Where(clause = "done=false")
 // select query will only return Todo where done = false
 public class Todo {
 
@@ -47,6 +47,13 @@ public class Todo {
     }
 
     public Todo(String description, LocalDate targetDate, boolean done) {
+        this.description = description;
+        this.targetDate = targetDate;
+        this.done = done;
+    }
+
+    public Todo(String username, String description, LocalDate targetDate, boolean done) {
+        this.username = username;
         this.description = description;
         this.targetDate = targetDate;
         this.done = done;

@@ -7,6 +7,8 @@ import com.spring.todo.service.AuthoritiesService;
 import com.spring.todo.service.TodoService;
 import com.spring.todo.service.UserService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,11 +18,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Controller
+@RequestMapping("/todo/admin")
 @SessionAttributes("name")
 public class AdminTodoController {
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private final TodoService todoService;
     private final UserService userService;
     private final AuthoritiesService authoritiesService;
@@ -36,33 +39,46 @@ public class AdminTodoController {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    @GetMapping("/admin")
-    public String admin(ModelMap model) {
+    @GetMapping("/list-todo")
+    public String incompleteTodos(ModelMap model) {
         model.addAttribute("name", StringUtils.capitalize(getLoggedUsername()));
         model.addAttribute("todos", todoService.findAll());
         return "all-todos";
     }
 
-    @GetMapping("/admin-add")
+    @GetMapping("/completed-todo")
+    public String completedTodos(Model model) {
+        model.addAttribute("todos", todoService.allCompletedTodos());
+        return "all-todos";
+    }
+
+    @GetMapping("/mark-done-todo")
+    public String markTodoAsDone(@RequestParam("id") int id) {
+        todoService.markTodoAsDone(id);
+        return "redirect:/todo/admin/list-todo";
+    }
+
+    @GetMapping("/add-todo")
     public String adminAddTodo(ModelMap model) {
         model.put("todo", new Todo("", LocalDate.now(), false));
         model.put("users", userService.findAllUserNames());
         return "admin-add-todo";
     }
 
-    @PostMapping("/admin-add")
+    @PostMapping("/add-todo")
     public String adminAddTodo(ModelMap model, @ModelAttribute("todo") @Valid Todo todo, BindingResult result) {
         // return the same page if validation fails
         if (result.hasErrors()) {
+            logger.error("Couldn't add Todo. Validation Failed. {}", result.getAllErrors());
             // since returning the form, so fill the model again
             model.put("users", userService.findAllUserNames());
             return "admin-add-todo";
         }
         todoService.save(todo);
-        return "redirect:admin"; // this avoids form re-submission caused by URL refresh
+        return "redirect:/todo/admin/list-todo"; // this avoids form re-submission caused by URL refresh
     }
 
-    @RequestMapping(value = "update-admin-todo", method = RequestMethod.GET)
+    @RequestMapping(value = "update-todo", method = RequestMethod.GET)
     public String adminUpdateTodo(@RequestParam("id") int id, ModelMap model) {
         if (todoService.findById(id) == null)
             throw new TodoNotFoundException("Invalid Todo Id");
@@ -71,35 +87,42 @@ public class AdminTodoController {
         return "admin-add-todo";
     }
 
-    @RequestMapping(value = "update-admin-todo", method = RequestMethod.POST)
+    @RequestMapping(value = "update-todo", method = RequestMethod.POST)
     public String adminUpdateTodo(@Valid Todo todo, ModelMap model, BindingResult result) {
         // return to the same page if validation fails
         if (result.hasErrors()) {
+            logger.error("Couldn't update Todo. Validation Failed. {}", result.getAllErrors());
             model.put("users", userService.findAllUserNames());
             model.addAttribute("todo", todo);
             return "admin-add-todo";
         }
         todoService.save(todo);
-        return "redirect:/admin";
+        return "redirect:/todo/admin/list-todo";
     }
 
-    @RequestMapping(value = "delete-admin-todo", method = RequestMethod.GET)
+    @RequestMapping(value = "delete-todo", method = RequestMethod.GET)
     public String adminDeleteTodo(@RequestParam("id") int id) {
         todoService.deleteById(id);
-        return "redirect:/admin";
+        return "redirect:/todo/admin/list-todo";
     }
 
-    @GetMapping("/register")
-    public String addNewUser(Model model) {
+    @GetMapping("/add-user")
+    public String addUser(Model model) {
         model.addAttribute("userForm", new UserRole("", ""));
-        model.addAttribute("roleOptions", List.of("ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_MANAGER"));
+        model.addAttribute("roleOptions", authoritiesService.getAuthorityList());
         return "userform";
     }
 
-    @PostMapping("/register")
-    public String addNewUser(@ModelAttribute("userRole") UserRole userRole) {
+    @PostMapping("/add-user")
+    public String addUser(@Valid @ModelAttribute("userForm") UserRole userRole, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            logger.error("Couldn't submit userform. Validation Failed. {}", result.getAllErrors());
+            model.addAttribute("roleOptions", authoritiesService.getAuthorityList());
+            return "userform";
+        }
+
         authoritiesService.addUserRole(userRole);
-        return "redirect:/admin";
+        return "redirect:/todo/admin/list-todo";
     }
 
     @GetMapping("/del-user")
@@ -109,11 +132,11 @@ public class AdminTodoController {
     }
 
     @PostMapping("/del-user")
-    public String deletedUser(@RequestParam("username") String username) {
+    public String deleteUser(@RequestParam("username") String username) {
         if (getLoggedUsername().equals(username))
             throw new RuntimeException("You can't delete your own account!");
 
         userService.deleteByName(username);
-        return "redirect:/admin";
+        return "redirect:/todo/admin/list-todo";
     }
 }
