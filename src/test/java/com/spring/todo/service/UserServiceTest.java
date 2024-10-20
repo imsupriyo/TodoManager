@@ -1,7 +1,7 @@
-package com.spring.todo;
+package com.spring.todo.service;
 
+import com.spring.todo.advice.UserNotFoundException;
 import com.spring.todo.entity.User;
-import com.spring.todo.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class UserServiceTest {
 
     @DisplayName("Valid User")
     @Test
-    public void validUser(){
+    public void validUser() {
         List<String> allUserNames = userService.findAllUserNames();
         assertEquals("[supriyo, john, marry]", allUserNames.toString());
         assertEquals(3, allUserNames.size());
@@ -33,6 +33,6 @@ public class UserServiceTest {
         assertNotNull(user);
         assertEquals("supriyo", user.getUsername());
         assertEquals("larry", userService.findByName("larry").getUsername());
-        assertNull(userService.findByName("test"),"it should return null");
+        assertThrows(UserNotFoundException.class, () -> userService.findByName("test"), "it should return null");
     }
 }

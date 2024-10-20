@@ -1,5 +1,6 @@
 package com.spring.todo.service;
 
+import com.spring.todo.advice.UserNotFoundException;
 import com.spring.todo.entity.User;
 import com.spring.todo.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class UserService {
     }
 
     public User findByName(String username) {
-        return userRepo.findByUsername(username);
+        return userRepo.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User Not found"));
     }
 
     public void save(User user) {
