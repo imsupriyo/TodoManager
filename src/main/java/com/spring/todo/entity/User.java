@@ -21,7 +21,7 @@ public class User {
     @Column(name = "enabled")
     private short enabled;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "authorities_id"))
     private Set<Authorities> authorities = new HashSet<>();

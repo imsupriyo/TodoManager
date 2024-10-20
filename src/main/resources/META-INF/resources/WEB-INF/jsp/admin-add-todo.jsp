@@ -2,7 +2,7 @@
 <%@ include file="common/navigation.jspf" %>
 
 <div class="container">
-    <h6>Please fill the below fields:</h6>
+    <h6>Please fill the below fields ${name}:</h6>
     <hr>
     <form:form class="form" method="post" modelAttribute="todo">
         <fieldset class="mb-3">

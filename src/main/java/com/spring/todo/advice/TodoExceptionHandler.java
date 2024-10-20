@@ -26,13 +26,13 @@ public class TodoExceptionHandler {
 //    }
 
     @ExceptionHandler(value = TodoNotFoundException.class)
-    String invalidIdError(TodoNotFoundException ex, Model model) {
+    public String invalidIdError(TodoNotFoundException ex, Model model) {
         model.addAttribute("errorMessage", ex.getMessage());
         return "error";
     }
 
     @ExceptionHandler(value = Exception.class)
-    String genericException(Exception ex, Model model) {
+    public String genericException(Exception ex, Model model) {
         System.out.println("------------");
         model.addAttribute("errorMessage", ex.getMessage());
         return "error";

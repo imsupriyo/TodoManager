@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +40,6 @@ public class AdminTodoController {
 
     @GetMapping("/list-todo")
     public String incompleteTodos(ModelMap model) {
-        model.addAttribute("name", StringUtils.capitalize(getLoggedUsername()));
         model.addAttribute("todos", todoService.findAll());
         return "all-todos";
     }
@@ -88,12 +86,11 @@ public class AdminTodoController {
     }
 
     @RequestMapping(value = "update-todo", method = RequestMethod.POST)
-    public String adminUpdateTodo(@Valid Todo todo, ModelMap model, BindingResult result) {
+    public String adminUpdateTodo(@Valid Todo todo, BindingResult result, ModelMap model) {
         // return to the same page if validation fails
         if (result.hasErrors()) {
             logger.error("Couldn't update Todo. Validation Failed. {}", result.getAllErrors());
             model.put("users", userService.findAllUserNames());
-            model.addAttribute("todo", todo);
             return "admin-add-todo";
         }
         todoService.save(todo);

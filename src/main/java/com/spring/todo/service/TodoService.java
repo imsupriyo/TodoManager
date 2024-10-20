@@ -3,7 +3,6 @@ package com.spring.todo.service;
 import com.spring.todo.advice.TodoNotFoundException;
 import com.spring.todo.entity.Todo;
 import com.spring.todo.repository.TodoRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,7 +47,6 @@ public class TodoService {
         return todoRepository.findByDoneOrderByTargetDate(true);
     }
 
-    @Transactional
     public void markTodoAsDone(int id) {
         if (findById(id).isDone())
             throw new RuntimeException("This Todo is already marked as completed.");

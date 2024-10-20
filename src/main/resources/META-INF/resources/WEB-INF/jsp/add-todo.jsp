@@ -1,7 +1,7 @@
 <%@ include file="common/header.jspf" %>
 <%@ include file="common/navigation.jspf" %>
 <div class="container" xmlns:form="http://www.w3.org/1999/html">
-    <h6>Please fill the below fields:</h6>
+    <h6>Please fill the below fields ${name}:</h6>
     <hr>
 
     <form:form class="form" method="post" modelAttribute="todo">
