@@ -2,18 +2,13 @@ package com.spring.todo.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import javax.sql.DataSource;
-
 @Configuration
-public class SpringSecurityConfiguration {
+public class SecurityConfiguration {
 
     // Commented to use JdbcUserDetailsManager
     /*
@@ -65,19 +60,19 @@ public class SpringSecurityConfiguration {
         return http.build();
     }
 
-    @Bean
-    UserDetailsManager userDetails(DataSource dataSource) {
-        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
-        // query to retrieve user by username
-        userDetailsManager.setUsersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username = ?");
-
-        // query to retrieve authorities/ roles by username
-        userDetailsManager.setAuthoritiesByUsernameQuery(
-                "SELECT u.username, a.authority FROM user_authorities ua " +
-                        "JOIN users u ON u.id = ua.user_id " +
-                        "JOIN authorities a ON a.id = ua.authorities_id " +
-                        "WHERE u.username = ?");
-        return userDetailsManager;
-    }
+//    @Bean
+//    UserDetailsManager userDetails(DataSource dataSource) {
+//        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
+//        // query to retrieve user by username
+//        userDetailsManager.setUsersByUsernameQuery("SELECT username, password, enabled FROM users WHERE username = ?");
+//
+//        // query to retrieve authorities/ roles by username
+//        userDetailsManager.setAuthoritiesByUsernameQuery(
+//                "SELECT u.username, a.authority FROM user_authorities ua " +
+//                        "JOIN users u ON u.id = ua.user_id " +
+//                        "JOIN authorities a ON a.id = ua.authorities_id " +
+//                        "WHERE u.username = ?");
+//        return userDetailsManager;
+//    }
 
 }
