@@ -38,22 +38,16 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable() // Disable CSRF for H2 console access
-                .authorizeHttpRequests()
-                .requestMatchers("/todo/admin/**").hasRole("ADMIN")
-                .requestMatchers("/todo/**").hasAnyRole("EMPLOYEE", "ADMIN", "MANAGER")
-                .requestMatchers("/h2-console/**").permitAll() // Allow H2 console access
-//                .requestMatchers("/login","/WEB-INF/jsp/**").permitAll()
-//                .anyRequest().permitAll() // TODO: with custom login it needs permitAll + Admin View isn't working
-                .anyRequest().authenticated()
-                .and()
+        http.csrf().disable() // Disable CSRF for H2 console access
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers("/h2-console/**", "/login/**", "/WEB-INF/jsp/**", "/webjars/**").permitAll()
+                                .requestMatchers("/todo/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/todo/**").hasAnyRole("EMPLOYEE", "ADMIN", "MANAGER"))
                 .headers().frameOptions().disable() // Disable X-Frame-Options for H2 console
                 .and()
-                .formLogin()
-                //                .loginPage("/login")
-                .defaultSuccessUrl("/todo/list-todo", true)
-                .and()
+                .formLogin(fl -> fl.loginPage("/login")
+                        .defaultSuccessUrl("/todo/list-todo")
+                        .failureUrl("/login?error=true"))
                 .exceptionHandling()
                 .accessDeniedPage("/todo/access-denied");
 

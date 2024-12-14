@@ -6,15 +6,14 @@
     <title>Log In</title>
 </head>
 <body>
-    <h2>Custom Login Page</h2>
+<h2>Login Page</h2>
 
-    <!-- Login Form -->
-    <form action="/todo" method="post">
+<form action="/login" method="post">
         <p>
-            Username: <input type="text" path="username">
+            Username: <input type="text" name="username" id="username">
         </p>
         <p>
-            Password: <input type="password" path="password">
+            Password: <input type="password" name="password" id="password">
         </p>
         <input type="submit" value="Login">
     </form>
