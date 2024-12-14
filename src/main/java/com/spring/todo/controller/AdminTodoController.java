@@ -113,7 +113,7 @@ public class AdminTodoController {
     @PostMapping("/add-user")
     public String addUser(@Valid @ModelAttribute("userForm") UserRole userRole, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            logger.error("Couldn't submit userform. Validation Failed. {}", result.getAllErrors());
+            logger.error("Couldn't submit user form. Validation Failed. {}", result.getAllErrors());
             model.addAttribute("roleOptions", authoritiesService.getAuthorityList());
             return "userform";
         }

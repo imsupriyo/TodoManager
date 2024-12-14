@@ -33,6 +33,7 @@ public class UserServiceTest {
         assertNotNull(user);
         assertEquals("supriyo", user.getUsername());
         assertEquals("larry", userService.findByName("larry").getUsername());
-        assertThrows(UserNotFoundException.class, () -> userService.findByName("test"), "it should return null");
+        assertThrows(UserNotFoundException.class,
+                () -> userService.findByName("test"), "it should return null");
     }
 }

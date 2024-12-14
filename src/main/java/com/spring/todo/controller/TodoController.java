@@ -28,12 +28,6 @@ public class TodoController {
         this.todoService = todoService;
     }
 
-    // TODO: uncomment it once custom login page issue is fixed
-//    @GetMapping("/login")
-//    public String loginPage() {
-//        return "basic_login";
-//    }
-
     // get username of the logged-in user
     private String getLoggedUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();

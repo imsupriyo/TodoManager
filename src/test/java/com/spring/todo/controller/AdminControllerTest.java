@@ -35,9 +35,6 @@ public class AdminControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private static MockHttpServletRequest request;
-
-    @Autowired
     private TodoService todoService;
 
     @Autowired
@@ -60,16 +57,6 @@ public class AdminControllerTest {
     @AfterEach
     public void deleteData() {
         jdbcTemplate.execute(deleteTodo);
-    }
-
-    @BeforeAll
-    public static void setup() {
-        request = new MockHttpServletRequest();
-        request.setParameter("id", String.valueOf(1));
-        request.setParameter("username", "supriyo");
-        request.setParameter("description", "Learn SpringBoot");
-        request.setParameter("target_date", LocalDate.now().toString());
-        request.setParameter("done", "false");
     }
 
     @DisplayName("add todo as admin")

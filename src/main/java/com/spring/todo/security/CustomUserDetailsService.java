@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("No user found with provided username"));
+                .orElseThrow(() -> new UsernameNotFoundException("No user found with provided username"));
 
         Set<SimpleGrantedAuthority> authorities = user.getAuthorities()
                 .stream()

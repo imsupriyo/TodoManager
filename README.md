@@ -16,7 +16,7 @@ Unit test and Integration Test have been done utilizing JUnit and Mockito.
 
 ### Login Page:
 
-![**Login Page**](login_page.png)
+![**Login Page**](images/login_page.png)
 
 ### Homepage for Employee:
 
